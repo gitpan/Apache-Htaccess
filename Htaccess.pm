@@ -1,4 +1,4 @@
-# $Header: /usr/local/apache/cvs/usermanage/Apache/Htaccess.pm,v 1.6 2000/09/27 18:43:23 matt Exp $
+# $Header: /usr/local/apache/cvs/usermanage/Apache/Htaccess.pm,v 1.7 2000/09/29 12:50:11 matt Exp $
 
 =head1 NAME
 
@@ -47,9 +47,9 @@ use vars qw($CVSVERSION $VERSION);
 
 use Carp;
 
-( $CVSVERSION ) = '$Revision: 1.6 $ ' =~ /\$Revision:\s+([^\s]+)/;
+( $CVSVERSION ) = '$Revision: 1.7 $ ' =~ /\$Revision:\s+([^\s]+)/;
 
-$VERSION = 0.1;
+$VERSION = 0.2;
 
 
 #####################################################
@@ -272,25 +272,52 @@ sub requires {
 
 Sets misc directives not directly supported by the API. If
 no params are given, returns a list of current directives 
-and their values.
+and their values. Note: as of 0.2, passing this method a 
+parameter list causes the directive list to be overwritten
+with your parameters. see L<add_directive()>.
 
 =cut
 
 sub directives {
 	my $self = shift;
-	@_ ? push @{$self->{DIRECTIVES}}, @_
+	@_ ? @{$self->{DIRECTIVES}} = @_
 	   : return @{$self->{DIRECTIVES}};
 	return 1;
 }
 
 
 
+
+############################################################
+
+=head2 B<add_directive()>
+
+	$obj->add_directive(CheckSpelling => 'on');
+
+Sets a directive (or directives) nondestructively. Use this
+if you just want to add a few directives without messing
+with all of the directive entries.
+
+=cut
+
+sub add_directive {
+	my $self = shift;
+	@_ ? push @{$self->{DIRECTIVES}}, @_
+	   : return 0;
+	return 1;
+}
+
+
 1;
+
 =back
 
 =head1 HISTORY
 
 	$Log: Htaccess.pm,v $
+	Revision 1.7  2000/09/29 12:50:11  matt
+	made directives() destructive and created the add_directive method()
+	
 	Revision 1.6  2000/09/27 18:43:23  matt
 	added more return values. its amazing the little things i forget
 	
