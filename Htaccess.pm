@@ -1,4 +1,4 @@
-# $Header: /usr/local/apache/cvs/usermanage/Apache/Htaccess.pm,v 1.12 2000/09/29 15:51:04 matt Exp $
+# $Header: /usr/local/apache/cvs/usermanage/Apache/Htaccess.pm,v 1.13 2000/09/29 16:22:46 matt Exp $
 
 =head1 NAME
 
@@ -55,9 +55,9 @@ use vars qw($CVSVERSION $VERSION $ERROR);
 
 use Carp;
 
-( $CVSVERSION ) = '$Revision: 1.12 $ ' =~ /\$Revision:\s+([^\s]+)/;
+( $CVSVERSION ) = '$Revision: 1.13 $ ' =~ /\$Revision:\s+([^\s]+)/;
 
-$VERSION = 0.3;
+$VERSION = 0.4;
 
 
 #####################################################
@@ -100,7 +100,7 @@ my $parse = sub (\$) {
 	#Suck off and store global require directives
 	my ($global_req) = $self->{HTACCESS} =~ /require group\s+(.+?)\n/is;
 	$self->{HTACCESS} =~ s/require group.+?\n//is;
-
+	@{$self->{GLOBAL_REQ}} = split(/\s+/,$global_req);
 	
 	#Suck off and store all remaining directives
 	while($self->{HTACCESS} =~ /(?<=\n)(.+?)(?=\n)/sg) {
@@ -399,6 +399,9 @@ sub add_directive {
 =head1 HISTORY
 
 	$Log: Htaccess.pm,v $
+	Revision 1.13  2000/09/29 16:22:46  matt
+	fixed bug in parser that caused global_reqs to be dumped. ARGH
+	
 	Revision 1.12  2000/09/29 15:51:04  matt
 	added global ERROR variable, changed global_require() to global_requires()
 	
