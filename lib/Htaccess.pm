@@ -1,4 +1,4 @@
-# $Id: Htaccess.pm,v 1.3 2002/02/27 15:04:14 comdog Exp $
+# $Id: Htaccess.pm,v 1.4 2002/02/28 11:25:14 comdog Exp $
 
 =head1 NAME
 
@@ -29,8 +29,9 @@ Apache::Htaccess - Create and modify Apache .htaccess files
 
 =head1 DESCRIPTION
 
-This module provides an OO interface to Apache .htaccess files. Currently
-the ability exists to read and write simple htaccess files. 
+This module provides an object-oriented interface to Apache .htaccess
+files. Currently the ability exists to read and write simple htaccess
+files.
 
 =head1 METHODS
 
@@ -46,7 +47,7 @@ use vars qw($VERSION $ERROR);
 
 use Carp;
 
-( $VERSION ) = '$Revision: 1.3 $ ' =~ /\$Revision:\s+([^\s]+)/;
+( $VERSION ) = '$Revision: 1.4 $ ' =~ /\$Revision:\s+([^\s]+)/;
 
 #####################################################
 # parse
@@ -92,8 +93,8 @@ my $parse = sub (\$) {
 	#Suck off and store all remaining directives
 	while($self->{HTACCESS} =~ /^(.+?)$/mg) 
 		{
-		my( $directive, $value ) = split(/\s+/,$1,2);
-		$value ||= '';
+		my( $directive, $value ) = split /\s+/, $1, 2;
+		$value = defined $value ? $value : '';
 		push @{$self->{DIRECTIVES}}, $directive, $value;
 		}
 
@@ -110,8 +111,9 @@ my $parse = sub (\$) {
 # deparse
 # - Private function -
 # In/Out Param: an Apache::Htaccess object
-# Function: takes the object's internal data structures and generates an htaccess file.
-#           the htaccess file contents are stored in $self->{HTACCESS}
+# Function: takes the object's internal data structures 
+# and generates an htaccess file.
+# The htaccess file contents are stored in $self->{HTACCESS}
 # Note: this will act on the object in place (note the prototype).
 
 my $deparse = sub (\$) {
@@ -363,6 +365,10 @@ sub add_directive {
 1;
 
 =back
+
+=head1 TO DO
+
+* rewrite the parser to handle blocks
 
 =head1 AUTHOR 
 
