@@ -26,7 +26,7 @@ if($obj) {
 	print "not ok 2\n";
 }
 
-if($obj->global_require('admin','0','1')) { print "ok 3\n"; }
+if($obj->global_requires('admin','0','1')) { print "ok 3\n"; }
 else { print "not ok 3\n"; }
 
 if($obj->directives('CheckSpelling' => 'on')) { print "ok 4\n"; }

@@ -5,14 +5,22 @@ SYNOPSIS
             use Apache::Htaccess;
 
             my $obj = Apache::Htaccess->new("htaccess");
+            die($Apache::Htaccess::ERROR) if $Apache::Htaccess::ERROR;
 
-            $obj->global_require(@groups);
+            $obj->global_requires(@groups);
+
+            $obj->add_global_require(@groups);
 
             $obj->directives(CheckSpelling => 'on');
+
+            $obj->add_directive(CheckSpelling => 'on');
         
             $obj->requires('admin.cgi',@groups);
 
+            $obj->add_require('admin.cgi',@groups);
+
             $obj->save();
+            die($Apache::Htaccess::ERROR) if $Apache::Htaccess::ERROR;
 
 DESCRIPTION
     This module provides an OO interface to Apache .htaccess files.
@@ -41,12 +49,23 @@ METHODS
          creation. This method is automatically called on object
          destruction.
 
-  global_require()
+  global_requires()
 
-                 $obj->global_require(@groups);
+                 $obj->global_requires(@groups);
 
-         Sets a global group requirement. If no params are provided, will
+         Sets the global group requirements. If no params are provided, will
          return a list of the current groups listed in the global require.
+         Note: as of 0.3, passing this method a parameter list causes the
+         global requires list to be overwritten with your parameters. see
+         the add_global_require() entry elsewhere in this document.
+
+  add_global_require()
+
+                 $obj->add_global_require(@groups);
+
+         Sets a global require (or requires) nondestructively. Use this if
+         you just want to add a few global requires without messing with all
+         of the global requires entries.
 
   requires()
 
@@ -54,7 +73,17 @@ METHODS
 
          Sets a group requirement for a file. If no params are given,
          returns a list of the current groups listed in the files require
-         directive.
+         directive. Note: as of 0.3, passing this method a parameter list
+         causes the requires list to be overwritten with your parameters.
+         see the add_require() entry elsewhere in this document.
+
+  add_require()
+
+                 $obj->add_require($file,@groups);
+
+         Sets a require (or requires) nondestructively. Use this if you just
+         want to add a few requires without messing with all of the requires
+         entries.
 
   directives()
 
@@ -76,9 +105,24 @@ METHODS
 
 HISTORY
             $Log: README,v $
-            Revision 1.2  2000/09/29 12:50:56  matt
+            Revision 1.3  2000/09/29 15:51:27  matt
             *** empty log message ***
 
+            Revision 1.12  2000/09/29 15:51:04  matt
+            added global ERROR variable, changed global_require() to global_requires()
+        
+            Revision 1.11  2000/09/29 15:36:53  matt
+            think i finally squashed the undef problem with requires()
+        
+            Revision 1.10  2000/09/29 15:20:36  matt
+            made global_requires destructive and created add_global_require(), added better error responses to new() and save()
+        
+            Revision 1.9  2000/09/29 14:31:35  matt
+            added new methods to the synopsis
+        
+            Revision 1.8  2000/09/29 14:25:46  matt
+            made requires nondestructive and added add_require()
+        
             Revision 1.7  2000/09/29 12:50:11  matt
             made directives() destructive and created the add_directive method()
         

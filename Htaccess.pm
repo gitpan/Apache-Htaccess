@@ -1,4 +1,4 @@
-# $Header: /usr/local/apache/cvs/usermanage/Apache/Htaccess.pm,v 1.7 2000/09/29 12:50:11 matt Exp $
+# $Header: /usr/local/apache/cvs/usermanage/Apache/Htaccess.pm,v 1.12 2000/09/29 15:51:04 matt Exp $
 
 =head1 NAME
 
@@ -9,14 +9,22 @@ Apache::Htaccess - Create and modify Apache .htaccess files
 	use Apache::Htaccess;
 
 	my $obj = Apache::Htaccess->new("htaccess");
+	die($Apache::Htaccess::ERROR) if $Apache::Htaccess::ERROR;
 
-	$obj->global_require(@groups);
+	$obj->global_requires(@groups);
+
+	$obj->add_global_require(@groups);
 
 	$obj->directives(CheckSpelling => 'on');
+
+	$obj->add_directive(CheckSpelling => 'on');
 	
 	$obj->requires('admin.cgi',@groups);
 
+	$obj->add_require('admin.cgi',@groups);
+
 	$obj->save();
+	die($Apache::Htaccess::ERROR) if $Apache::Htaccess::ERROR;
 
 
 =head1 DESCRIPTION
@@ -43,13 +51,13 @@ package Apache::Htaccess;
 
 use strict;
 use warnings;
-use vars qw($CVSVERSION $VERSION);
+use vars qw($CVSVERSION $VERSION $ERROR);
 
 use Carp;
 
-( $CVSVERSION ) = '$Revision: 1.7 $ ' =~ /\$Revision:\s+([^\s]+)/;
+( $CVSVERSION ) = '$Revision: 1.12 $ ' =~ /\$Revision:\s+([^\s]+)/;
 
-$VERSION = 0.2;
+$VERSION = 0.3;
 
 
 #####################################################
@@ -169,15 +177,27 @@ htaccess file or from scratch
 =cut
 		  
 sub new {
+	undef $ERROR;
 	my $class = shift;
-	croak "Must provide a path to the .htaccess file" unless my $file = shift;
+	my $file = shift;;
+	
+	unless($file) {
+		$ERROR = "Must provide a path to the .htaccess file";
+		return 0;
+	}
+	
 	my $self = {};
 	$self->{FILENAME} = $file;
 	if(-e $file) {
-		open(FILE,$file);
+		unless( open(FILE,$file) ) {
+			$ERROR = "Unable to open $file";
+			return 0;
+		}
+		
 		{	local $/; 
 			$self->{HTACCESS} = <FILE>;
 		}
+		
 		close FILE;
 		&$parse($self);
 	}
@@ -200,9 +220,13 @@ This method is automatically called on object destruction.
 =cut
 
 sub save {
+	undef $ERROR;
 	my $self = shift;
 	&$deparse($self);
-	open(FILE,"+>$self->{FILENAME}") or return 0;
+	unless( open(FILE,"+>$self->{FILENAME}") ) {
+		$ERROR = "Unable to open $self->{FILENAME} for writing";
+		return 0;
+	}
 	print FILE $self->{HTACCESS};
 	close FILE;
 	return 1;
@@ -217,23 +241,48 @@ sub DESTROY {
 
 ###########################################################
 
-=head2 B<global_require()>
+=head2 B<global_requires()>
 
-	$obj->global_require(@groups);
+	$obj->global_requires(@groups);
 
-Sets a global group requirement. If no params are provided,
+Sets the global group requirements. If no params are provided,
 will return a list of the current groups listed in the global
-require.
+require. Note: as of 0.3, passing this method a 
+parameter list causes the global requires list to be overwritten
+with your parameters. see L<add_global_require()>.
 
 =cut
 
-sub global_require {
+sub global_requires {
+	undef $ERROR;
 	my $self = shift;
-	@_ ? push @{$self->{GLOBAL_REQ}}, @_
-	   : return @{$self->{GLOBAL_REQ}};
+	@_ ? @{$self->{GLOBAL_REQ}} = @_
+	   : defined(@{$self->{GLOBAL_REQ}}) ? return @{$self->{GLOBAL_REQ}}
+	   							: return 0;
 	return 1;
 }
 
+
+
+###########################################################
+
+=head2 B<add_global_require()>
+
+	$obj->add_global_require(@groups);
+
+Sets a global require (or requires) nondestructively. Use this
+if you just want to add a few global requires without messing
+with all of the global requires entries.
+
+=cut
+
+sub add_global_require {
+	undef $ERROR;
+	my $self = shift;
+	@_ ? push @{$self->{GLOBAL}}, @_
+	   : return 0;
+	return 1;
+}
 
 
 
@@ -245,14 +294,18 @@ sub global_require {
 
 Sets a group requirement for a file. If no params are given,
 returns a list of the current groups listed in the files
-require directive.
+require directive.  Note: as of 0.3, passing this method a 
+parameter list causes the requires list to be overwritten
+with your parameters. see L<add_require()>.
 
 =cut
 
 sub requires {
+	undef $ERROR;
 	my $self = shift;
 	my $file = shift or return 0;
 	if(@_) {
+		delete $self->{REQUIRE}->{$file};
 		foreach my $group (@_) {
 			$self->{REQUIRE}->{$file}->{$group}++;
 		}
@@ -261,6 +314,35 @@ sub requires {
 	}
 	return 1;
 }
+
+
+
+
+###########################################################
+
+=head2 B<add_require()>
+
+	$obj->add_require($file,@groups);
+
+Sets a require (or requires) nondestructively. Use this
+if you just want to add a few requires without messing
+with all of the requires entries.
+
+=cut
+
+sub add_requires {
+	undef $ERROR;
+	my $self = shift;
+	my $file = shift or return 0;
+	if(@_) {
+		foreach my $group (@_) {
+			$self->{REQUIRE}->{$file}->{$group}++;
+		}
+	} else {
+		return 0;
+	}
+}
+
 
 
 
@@ -279,6 +361,7 @@ with your parameters. see L<add_directive()>.
 =cut
 
 sub directives {
+	undef $ERROR;
 	my $self = shift;
 	@_ ? @{$self->{DIRECTIVES}} = @_
 	   : return @{$self->{DIRECTIVES}};
@@ -301,6 +384,7 @@ with all of the directive entries.
 =cut
 
 sub add_directive {
+	undef $ERROR;
 	my $self = shift;
 	@_ ? push @{$self->{DIRECTIVES}}, @_
 	   : return 0;
@@ -315,6 +399,21 @@ sub add_directive {
 =head1 HISTORY
 
 	$Log: Htaccess.pm,v $
+	Revision 1.12  2000/09/29 15:51:04  matt
+	added global ERROR variable, changed global_require() to global_requires()
+	
+	Revision 1.11  2000/09/29 15:36:53  matt
+	think i finally squashed the undef problem with requires()
+	
+	Revision 1.10  2000/09/29 15:20:36  matt
+	made global_requires destructive and created add_global_require(), added better error responses to new() and save()
+	
+	Revision 1.9  2000/09/29 14:31:35  matt
+	added new methods to the synopsis
+	
+	Revision 1.8  2000/09/29 14:25:46  matt
+	made requires nondestructive and added add_require()
+	
 	Revision 1.7  2000/09/29 12:50:11  matt
 	made directives() destructive and created the add_directive method()
 	
