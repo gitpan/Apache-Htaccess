@@ -1,0 +1,5 @@
+MANIFEST
+Makefile.PL
+Htaccess.pm
+test.pl
+README

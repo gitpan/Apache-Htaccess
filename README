@@ -1,0 +1,86 @@
+NAME
+    Apache::Htaccess - Create and modify Apache .htaccess files
+
+SYNOPSIS
+            use Apache::Htaccess;
+
+            my $obj = Apache::Htaccess->new("htaccess");
+
+            $obj->global_require(@groups);
+
+            $obj->directives(CheckSpelling => 'on');
+        
+            $obj->requires('admin.cgi',@groups);
+
+            $obj->save();
+
+DESCRIPTION
+    This module provides an OO interface to Apache .htaccess files.
+    Currently the ability exists to read and write simple htaccess files.
+
+AUTHOR
+    Matt Cashner <matt@cre8tivegroup.com>
+
+COPYRIGHT
+    All code is copyright (c) 2000 by The Creative Group. It may be
+    distributed under the terms of Perl itself.
+
+METHODS
+  new()
+
+                 my $obj = Apache::Htaccess->new($path_to_htaccess);
+
+         Creates a new Htaccess object either with data loaded from an
+         existing htaccess file or from scratch
+
+  save()
+
+                 $obj->save();
+
+         Saves the htaccess file to the filename designated at object
+         creation. This method is automatically called on object
+         destruction.
+
+  global_require()
+
+                 $obj->global_require(@groups);
+
+         Sets a global group requirement. If no params are provided, will
+         return a list of the current groups listed in the global require.
+
+  requires()
+
+                 $obj->requires($file,@groups);
+
+         Sets a group requirement for a file. If no params are given,
+         returns a list of the current groups listed in the files require
+         directive.
+
+  directives()
+
+                 $obj->directives(CheckSpelling => 'on');
+
+         Sets misc directives not directly supported by the API. If no
+         params are given, returns a list of current directives and their
+         values.
+
+HISTORY
+                 $Log: README,v $
+                 Revision 1.1  2000/09/27 18:32:22  matt
+                 added MM files in preparation for release
+
+                 Revision 1.5  2000/09/27 18:30:34  matt
+                 fixed silly pod problem
+        
+                 Revision 1.4  2000/09/27 18:23:46  matt
+                 added useful return values to save().
+        
+                 Revision 1.3  2000/09/27 18:19:34  matt
+                 parse now works and can parse htaccess files the module has created (or very similar files). added more docs
+        
+                 Revision 1.2  2000/09/27 14:19:26  matt
+                 deparse now working, additional docs added
+        
+                 Revision 1.1  2000/09/26 21:20:24  matt
+                 first nonfunctional version :)  data structures are set up and accessor methods to those structures are ready. input and output of the file (note: the useful sections) are not yet written.
+        
