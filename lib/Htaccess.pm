@@ -1,4 +1,4 @@
-# $Header: /usr/local/apache/cvs/usermanage/Apache/Htaccess.pm,v 1.13 2000/09/29 16:22:46 matt Exp $
+# $Id: Htaccess.pm,v 1.2 2001/10/20 18:12:49 comdog Exp $
 
 =head1 NAME
 
@@ -32,15 +32,6 @@ Apache::Htaccess - Create and modify Apache .htaccess files
 This module provides an OO interface to Apache .htaccess files. Currently
 the ability exists to read and write simple htaccess files. 
 
-=head1 AUTHOR 
-
-Matt Cashner <matt@cre8tivegroup.com>
-
-=head1 COPYRIGHT
-
-All code is copyright (c) 2000 by The Creative Group. It 
-may be distributed under the terms of Perl itself.
-
 =head1 METHODS
 
 =over 5
@@ -51,14 +42,11 @@ package Apache::Htaccess;
 
 use strict;
 use warnings;
-use vars qw($CVSVERSION $VERSION $ERROR);
+use vars qw($VERSION $ERROR);
 
 use Carp;
 
-( $CVSVERSION ) = '$Revision: 1.13 $ ' =~ /\$Revision:\s+([^\s]+)/;
-
-$VERSION = 0.4;
-
+( $VERSION ) = '$Revision: 1.2 $ ' =~ /\$Revision:\s+([^\s]+)/;
 
 #####################################################
 # parse
@@ -207,9 +195,6 @@ sub new {
 }
 
 
-
-###########################################################
-
 =head2 B<save()>
 
 	$obj->save();
@@ -238,9 +223,6 @@ sub DESTROY {
 }
 
 
-
-###########################################################
-
 =head2 B<global_requires()>
 
 	$obj->global_requires(@groups);
@@ -263,9 +245,6 @@ sub global_requires {
 }
 
 
-
-###########################################################
-
 =head2 B<add_global_require()>
 
 	$obj->add_global_require(@groups);
@@ -284,9 +263,6 @@ sub add_global_require {
 	return 1;
 }
 
-
-
-###########################################################
 
 =head2 B<requires()>
 
@@ -317,9 +293,6 @@ sub requires {
 
 
 
-
-###########################################################
-
 =head2 B<add_require()>
 
 	$obj->add_require($file,@groups);
@@ -345,9 +318,6 @@ sub add_requires {
 
 
 
-
-###########################################################
-
 =head2 B<directives()>
 
 	$obj->directives(CheckSpelling => 'on');
@@ -368,10 +338,6 @@ sub directives {
 	return 1;
 }
 
-
-
-
-############################################################
 
 =head2 B<add_directive()>
 
@@ -396,47 +362,15 @@ sub add_directive {
 
 =back
 
-=head1 HISTORY
+=head1 AUTHOR 
 
-	$Log: Htaccess.pm,v $
-	Revision 1.13  2000/09/29 16:22:46  matt
-	fixed bug in parser that caused global_reqs to be dumped. ARGH
-	
-	Revision 1.12  2000/09/29 15:51:04  matt
-	added global ERROR variable, changed global_require() to global_requires()
-	
-	Revision 1.11  2000/09/29 15:36:53  matt
-	think i finally squashed the undef problem with requires()
-	
-	Revision 1.10  2000/09/29 15:20:36  matt
-	made global_requires destructive and created add_global_require(), added better error responses to new() and save()
-	
-	Revision 1.9  2000/09/29 14:31:35  matt
-	added new methods to the synopsis
-	
-	Revision 1.8  2000/09/29 14:25:46  matt
-	made requires nondestructive and added add_require()
-	
-	Revision 1.7  2000/09/29 12:50:11  matt
-	made directives() destructive and created the add_directive method()
-	
-	Revision 1.6  2000/09/27 18:43:23  matt
-	added more return values. its amazing the little things i forget
-	
-	Revision 1.5  2000/09/27 18:30:34  matt
-	fixed silly pod problem
-	
-	Revision 1.4  2000/09/27 18:23:46  matt
-	added useful return values to save().
-	
-	Revision 1.3  2000/09/27 18:19:34  matt
-	parse now works and can parse htaccess files the module has created (or very similar files). added more docs
-	
-	Revision 1.2  2000/09/27 14:19:26  matt
-	deparse now working, additional docs added
-	
-	Revision 1.1  2000/09/26 21:20:24  matt
-	first nonfunctional version :)  data structures are set up and accessor methods to those structures are ready. input and output of the file (note: the useful sections) are not yet written.
-	
+Matt Cashner <matt@cre8tivegroup.com> originally created this module,
+and brian d foy <bdfoy@cpan.org> currently maintains it.
+
+=head1 COPYRIGHT
+
+Copyright (C) 2000 by The Creative Group. 
+
+This module may be distributed under the terms of Perl itself.	
 
 =cut

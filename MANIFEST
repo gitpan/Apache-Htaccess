@@ -1,5 +1,5 @@
+# $Id: MANIFEST,v 1.1.1.1 2001/10/20 18:00:36 comdog Exp $
 MANIFEST
 Makefile.PL
-Htaccess.pm
-test.pl
-README
+lib/Htaccess.pm
+t/test.t
