@@ -1,4 +1,4 @@
-# $Id: Htaccess.pm,v 1.2 2001/10/20 18:12:49 comdog Exp $
+# $Id: Htaccess.pm,v 1.3 2002/02/27 15:04:14 comdog Exp $
 
 =head1 NAME
 
@@ -46,7 +46,7 @@ use vars qw($VERSION $ERROR);
 
 use Carp;
 
-( $VERSION ) = '$Revision: 1.2 $ ' =~ /\$Revision:\s+([^\s]+)/;
+( $VERSION ) = '$Revision: 1.3 $ ' =~ /\$Revision:\s+([^\s]+)/;
 
 #####################################################
 # parse
@@ -84,16 +84,18 @@ my $parse = sub (\$) {
 		}
 	}		
 
-
-	#Suck off and store global require directives
-	my ($global_req) = $self->{HTACCESS} =~ /require group\s+(.+?)\n/is;
-	$self->{HTACCESS} =~ s/require group.+?\n//is;
-	@{$self->{GLOBAL_REQ}} = split(/\s+/,$global_req);
-	
+	if( $self->{HTACCESS} =~ s/require group\s+(.+?)\n//is )
+		{
+		@{$self->{GLOBAL_REQ}} = split( /\s+/, $1);
+		}
+		
 	#Suck off and store all remaining directives
-	while($self->{HTACCESS} =~ /(?<=\n)(.+?)(?=\n)/sg) {
-		push @{$self->{DIRECTIVES}}, split(/\s+/,$1,2);
-	}
+	while($self->{HTACCESS} =~ /^(.+?)$/mg) 
+		{
+		my( $directive, $value ) = split(/\s+/,$1,2);
+		$value ||= '';
+		push @{$self->{DIRECTIVES}}, $directive, $value;
+		}
 
 	chomp @{$self->{DIRECTIVES}};
 
@@ -115,10 +117,8 @@ my $parse = sub (\$) {
 my $deparse = sub (\$) {
 	my $self = shift;
 	my $content;
-	
-	$content .= "# This htaccess file created by Apache::Htaccess\n# Send questions and comments to matt\@cre8tivegroup.com\n\n";
-	
-	if($self->{GLOBAL_REQ}) { 
+		
+	if( $self->{GLOBAL_REQ} ) { 
 		$content .= "require group @{$self->{GLOBAL_REQ}}\n";
 	}
 	
@@ -127,12 +127,14 @@ my $deparse = sub (\$) {
 		for($i = 0; $i < @{$self->{DIRECTIVES}}; $i++) {
 			my $key = $self->{DIRECTIVES}[$i];
 			my $value = $self->{DIRECTIVES}[++$i];
-			next unless ($key && $value);
-			$content .= "$key $value\n";
+			next unless defined $key && defined $value;
+			$content .= "$key";
+			$content .= " $value" if $value ne '';
+			$content .= "\n";
 		}
 	}
 	
-	$content .= "\n";	
+	# $content .= "\n";	
 
 	if(exists($self->{REQUIRE})) {
 		foreach (keys %{$self->{REQUIRE}}) {
@@ -167,7 +169,7 @@ htaccess file or from scratch
 sub new {
 	undef $ERROR;
 	my $class = shift;
-	my $file = shift;;
+	my $file = shift;
 	
 	unless($file) {
 		$ERROR = "Must provide a path to the .htaccess file";
