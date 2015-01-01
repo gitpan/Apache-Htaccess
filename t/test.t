@@ -1,5 +1,3 @@
-# $Id: test.t,v 1.1.1.1 2001/10/20 18:00:36 comdog Exp $
-
 BEGIN { $| = 1; print "1..8\n"; }
 END {print "not ok 1\n" unless $loaded;}
 use Apache::Htaccess;

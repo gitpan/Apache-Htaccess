@@ -1,5 +1,3 @@
-# $Id: parse.t,v 1.3 2002/02/28 11:44:50 comdog Exp $
-
 BEGIN { $| = 1; print "1..3\n"; }
 END {print "not ok 1\n" unless $loaded;}
 use Apache::Htaccess;

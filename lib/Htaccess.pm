@@ -1,5 +1,3 @@
-# $Id: Htaccess.pm,v 1.4 2002/02/28 11:25:14 comdog Exp $
-
 =head1 NAME
 
 Apache::Htaccess - Create and modify Apache .htaccess files
@@ -47,7 +45,7 @@ use vars qw($VERSION $ERROR);
 
 use Carp;
 
-( $VERSION ) = '$Revision: 1.4 $ ' =~ /\$Revision:\s+([^\s]+)/;
+( $VERSION ) = '1.5';
 
 #####################################################
 # parse
@@ -242,9 +240,17 @@ with your parameters. see L<add_global_require()>.
 sub global_requires {
 	undef $ERROR;
 	my $self = shift;
-	@_ ? @{$self->{GLOBAL_REQ}} = @_
-	   : defined(@{$self->{GLOBAL_REQ}}) ? return @{$self->{GLOBAL_REQ}}
-	   							: return 0;
+	
+	if( @_ ) {
+		@{$self->{GLOBAL_REQ}} = @_
+		}
+	elsif( @{$self->{GLOBAL_REQ}} ) {
+		return @{$self->{GLOBAL_REQ}}
+		}
+	else {
+		return 0;
+		}
+
 	return 1;
 }
 
@@ -370,10 +376,19 @@ sub add_directive {
 
 * rewrite the parser to handle blocks
 
+=head1 SOURCE CODE
+
+This module is in GitHub:
+
+	https://github.com/CPAN-Adopt-Me/apache-htaccess.git
+
 =head1 AUTHOR 
 
-Matt Cashner <matt@cre8tivegroup.com> originally created this module,
-and brian d foy <bdfoy@cpan.org> currently maintains it.
+Matt Cashner <matt@cre8tivegroup.com> originally created this module.
+brian d foy <bdfoy@cpan.org> maintained it for a long time.
+
+Now this module has no maintainer. You can takeover maintenance by
+writing to modules@perl.org.
 
 =head1 COPYRIGHT
 
